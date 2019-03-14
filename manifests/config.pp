@@ -130,7 +130,7 @@ class rabbitmq::config {
       }
     }
     'RedHat': {
-      if $::operatingsystem =! 'Amazon' {
+      if $::operatingsystem != 'Amazon' {
         if versioncmp($::operatingsystemmajrelease, '7') >= 0 {
           file { '/etc/systemd/system/rabbitmq-server.service.d':
             ensure                  => directory,
