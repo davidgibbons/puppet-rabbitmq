@@ -130,25 +130,27 @@ class rabbitmq::config {
       }
     }
     'RedHat': {
-      if versioncmp($::operatingsystemmajrelease, '7') >= 0 {
-        file { '/etc/systemd/system/rabbitmq-server.service.d':
-          ensure                  => directory,
-          owner                   => '0',
-          group                   => '0',
-          mode                    => '0755',
-          selinux_ignore_defaults => true,
-        } ->
-        file { '/etc/systemd/system/rabbitmq-server.service.d/limits.conf':
-          content => template('rabbitmq/rabbitmq-server.service.d/limits.conf'),
-          owner   => '0',
-          group   => '0',
-          mode    => '0644',
-          notify  => Exec['rabbitmq-systemd-reload'],
-        }
-        exec { 'rabbitmq-systemd-reload':
-          command     => '/usr/bin/systemctl daemon-reload',
-          notify      => Class['Rabbitmq::Service'],
-          refreshonly => true,
+      if $::operatingsystem =! 'Amazon' {
+        if versioncmp($::operatingsystemmajrelease, '7') >= 0 {
+          file { '/etc/systemd/system/rabbitmq-server.service.d':
+            ensure                  => directory,
+            owner                   => '0',
+            group                   => '0',
+            mode                    => '0755',
+            selinux_ignore_defaults => true,
+          } ->
+          file { '/etc/systemd/system/rabbitmq-server.service.d/limits.conf':
+            content => template('rabbitmq/rabbitmq-server.service.d/limits.conf'),
+            owner   => '0',
+            group   => '0',
+            mode    => '0644',
+            notify  => Exec['rabbitmq-systemd-reload'],
+          }
+          exec { 'rabbitmq-systemd-reload':
+            command     => '/usr/bin/systemctl daemon-reload',
+            notify      => Class['Rabbitmq::Service'],
+            refreshonly => true,
+          }
         }
       }
       file { '/etc/security/limits.d/rabbitmq-server.conf':
